@@ -1,0 +1,146 @@
+\section{Новый прекурсор на основе b-value}
+
+В прошлом пункте мы рассмотрели прекурсор b-value. Его вероятностная модель -- экспоненциальное распределение времени между магнитудами землетрясений. Переходя в такой модели к количеству землетрясений, мы получим распределение Пуассона. Такой подход позволит нам параметризовать $\lambda$ как линейную функцию от ковариатов $x$. Изменяя структуру $x$, мы получаем различные прекурсоры.
+
+\begin{itemize}
+\item Прекурсор, как аномалии по временной оси $\Leftarrow x = (\lambda_{t-1},\cdot \lambda_{t-k})$
+\item Прекурсор, как аномалии в пространственном поле  $\Leftarrow x = (\lambda_{1},\cdot \lambda_{k})$,  индекс по $k$ соседям
+\end{itemize}
+
+Кроме этого, мы добавим в модель ядерный подход, что сделает её гибче.
+
+\subsection{Вероятностная модель}
+
+\begin{equation*}
+\begin{aligned}
+& \lambda(x) = x^T\beta \\
+& \mu(x) = \exp{\lambda(x)} \\
+& y \sim \text{Poisson($\mu(x)$)} 
+\end{aligned}
+\end{equation*}
+
+Введем априорное распределение $\beta\sim\mathcal{N}(0, \Sigma_{\beta})$. Наша цель получить апостериорное распределение
+
+$$
+p(\beta|X,y)\propto p(y|X,\beta)p(\beta)
+$$
+
+В силу не сопряженности модели, нормировочная константа нам неизвестна, а интеграл $\int p(y|X,\beta)p(\beta)d\beta$ в аналитическом виде не берется. В такой ситуации, возможны два пути:
+\begin{itemize}
+\item MCMC семплирование 
+\item аппроксимация распределения
+\end{itemize}
+
+Нам необходимо решение в замкнутом виде, т.к. мы хотим последовательно рассчитывать значение прекурсора с приходом новых данных, а также хочется иметь трактуемое критическое значение прекурсора в виде квантиля распределения. Поэтому мы будем использовать аппроксимацию и получим решение в замкнутом виде.
+
+\subsection{Вероятностный вывод}
+Выпишем правдоподобие для наблюдаемых данных $D=(y_i, x_i)_{i=1}^N$ в соответствии с введенной выше моделью.
+
+\begin{equation*}
+\begin{aligned}
+& p(Y|X, \beta) = \prod\limits_{i=1}^{N}\dfrac{1}{y_i!}\mu(x_i)^{y_i}\exp(-\mu(x_i)) =  \\
+& = \prod\limits_{i=1}^{N} \dfrac{1}{y_i}\underbrace{\dfrac{1}{(y_i - 1)!}\exp(\lambda(x_i))\exp(-\exp(\lambda(x_i)))}_{\text{log-Gamma distribution}}
+\end{aligned}
+\end{equation*} 
+
+Как показано в работе~\cite{log_gamma_approx} лог-гамма распределение может быть аппроксимированно в виде:
+
+$$
+\text{logGamma(a,b)}\approx \mathcal{N}(\log a + \log b, a^{-1})
+$$
+
+Используя эту аппроксимацию, продолжим вывод:
+
+\begin{equation*}
+\begin{aligned}
+& \prod\limits_{i=1}^{N} \dfrac{1}{y_i}\underbrace{\dfrac{1}{(y_i - 1)!}\exp(\lambda(x_i))\exp(-\exp(\lambda(x_i)))}_{\text{log-Gamma distribution}} = \\
+& = \prod\limits_{i=1}^{N} \dfrac{1}{y_i}\mathcal{N}(\lambda(x_i)|\log y_i, y_i^{-1}) = \\
+& = (2\pi)^{-\frac{N}{2}}|\Sigma_y|^{\frac{1}{2}}\exp\left[-\frac{1}{2}(X\beta - \log(y))^T \Sigma^{-1}_y (X\beta - \log(y))  \right],~\text{где } \Sigma_y = \text{diag}\left(\frac{1}{y_i}\right)
+\end{aligned}
+\end{equation*} 
+
+Теперь правдоподобие и априорное распределение для $\beta$ сопряжены, чем мы и воспользуемся:
+
+\begin{equation*}
+\begin{aligned}
+& \log p(\beta|X, y) \propto \log p(y|X,\beta) + \log p(\beta) \propto \\
+& -\dfrac{1}{2}(X\beta - y)^T\Sigma_y^{-1}(X\beta - \log y) - \dfrac{1}{2}\beta^T\Sigma^{-1}_{\beta}\beta  = Q(\beta)\\
+& \nabla Q(\beta) = \left(X^T\Sigma^{-1}_y X + \Sigma_{\beta}^{-1}\right)\beta - X^T\Sigma^{-1}X\log y = 0 \\
+& \beta^{*} = \mu_{\beta}^{'} = (X^T\Sigma^{-1}_{y}X + \Sigma^{-1}_{\beta})^{-1}X^T\Sigma^{-1}_{y} \log y, \text{ где } \Sigma_{y} =  \text{diag}\left(\frac{1}{y_i}\right) \\
+& \Sigma_{\beta}^{'} = \nabla \nabla Q(\beta) = (X^T\Sigma^{-1}_{y}X + \Sigma^{-1}_{\beta})^{-1}
+\end{aligned}
+\end{equation*}
+
+Таким образом, мы получили апостериорное распределение:
+
+\begin{equation*}
+\begin{aligned}
+& p(\beta|X, y) \sim \mathcal{N}(\mu_{\beta}^{'}, \Sigma_{\beta}^{'}) \\
+& \mu_{\beta}^{'} = (X^T\Sigma^{-1}_{y}X + \Sigma^{-1}_{\beta})^{-1}X^T\Sigma^{-1}_{y} \log y, \text{ где } \Sigma_{y} =  \text{diag}\left(\frac{1}{y_i}\right) \\
+& \Sigma_{\beta}^{'} = (X^T\Sigma^{-1}_{y}X + \Sigma^{-1}_{\beta})^{-1}
+\end{aligned}
+\end{equation*}
+
+Тогда распределение $\lambda(x_{*})$, где $x_{*}$ обозначено новое наблюдение:
+
+\begin{equation*}
+\begin{aligned}
+& \lambda(x_{*}) = x_{*}^T\beta \sim \mathcal{N}\left(x_{*}^T\mu^{'}_{\beta}, x_{*}^T\Sigma^{'}_{\beta}x_{*}\right)
+\end{aligned}
+\end{equation*}
+
+\subsection{Ядровая версия}
+Получим ядровую версию. Для этого придется ограничиться $\Sigma^{'}_{\beta} = I$.
+
+\begin{equation*}
+\begin{aligned}
+& \mu_{\lambda} =  x_{*}^T(X^T\Sigma^{-1}_{y}X + \Sigma^{-1}_{\beta})^{-1}X^T\Sigma^{-1}_{y} \log y \\
+& \text{Применим тождество Шермана-Моррисона-Вудбери} \\
+& (X^T\Sigma^{-1}_{y}X + I)^{-1}X^T\Sigma^{-1}_{y} = X^T(XX^T + \Sigma_y)^{-1} \\
+& \mu_{\lambda}  = x_{*}^TX^T(XX^T + \Sigma_y)^{-1}\log y
+\end{aligned}
+\end{equation*}
+
+Тогда естественным образом, мы можем заменить матрицу Грамма на ядровую матрицу. Введем обозначения.
+
+\begin{equation*}
+\begin{aligned}
+& k(\cdotp, \cdotp) = \langle \phi(\cdotp), \phi(\cdotp) \rangle, \text{ ядровая функция } \\
+& k_{*} = [k(x_{*}, x_1)\dots,  k(x_{*}, x_N )]^T \\
+& K = \left(K_{ij}\right)_{i,j=1,\dots, N} = \left(k(x_i, x_j)\right)_{i,j=1,\dots, N}
+\end{aligned}
+\end{equation*}
+
+Тогда
+
+\begin{equation*}
+\begin{aligned}
+& \lambda(x_{*}) \sim \mathcal{N}\left(\mu_{\lambda}^{k}, \Sigma_{\lambda}^{k} \right) \\
+& \mu_{\lambda}^{k} = k_{*}^T(K+\Sigma_{y})^{-1}\log y \\
+& \Sigma_{\lambda}^{k} = k(x_{*}, x_{*}) -  k_{*}^T(K+\Sigma_{y})^{-1}k_{*}
+\end{aligned}
+\end{equation*}
+
+Таким образом, мы получили ядровую версию.
+
+\subsection{Байесовский прогноз}
+
+Также как прекурсор можно использовать временной ряд невязки между реальным числом землятресений и нашим предсказанием. Заметим, что в целом, на не важна точность прогноза сама по себе, главное чтобы она была достаточной для того, чтобы уловить разладку перед землетресениями.
+
+\begin{equation*}
+\begin{aligned}
+& p(y_{*}|x_{*}, X, y) = \int \underbrace{p(y_{*}|\lambda_{*})}_{\text{ Poisson }} \underbrace{p(\lambda_{*}|x_{*}, X, y)}_{\text{Normal}} \\
+& \text{теперь используем аппроксимацию в обратную сторону,} \\
+& \text{чтобы получить сопряженную пару Gamma-Poisson} \\
+& \mu_{*} = \exp(\lambda_{*}) \Rightarrow  \lambda_{*} = \log\mu^{*},~\lambda_{*} \sim Normal \approx LogGamma  \\
+& \Rightarrow \mu^{*}\sim \text{Gamma}(a_{*}, b_{*}) \\
+& a_{*}  =  \sigma_{\lambda}^{-2} \\ 
+& b_{*} =  \sigma_{\lambda}^2\exp(\mu_{\lambda})\ \
+\end{aligned}
+\end{equation*}
+
+Сопряженная пара Gamma-Poisson дает Negative-Binomial распределение:
+
+$$
+y_{*}|x_{*}, X, y \sim \text{NegBin}(\exp(\mu_{\lambda}), \sigma_{\lambda}^2)
+$$

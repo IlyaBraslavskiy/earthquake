@@ -1,0 +1,78 @@
+\begin{thebibliography}{10}
+
+\bibitem{work}
+Working~Group on~California Earthquake~Probabilities.
+\newblock Earthquakes probabilities in the san francisco bay region: 2002 to
+  2031.
+\newblock {\em U.S. Geological Survey Open File Report}, 2003.
+
+\bibitem{gr_b_value}
+B.~GUTENBERG and C.~RICHTER.
+\newblock Seismicity of the earth and associated phenomena.
+\newblock {\em Princeton University Press, Princeton, New Jersey, 2nd edition},
+  page 310, 1954.
+
+\bibitem{physic_b}
+Yuan~Gao Stuart~Crampin.
+\newblock The physics underlying gutenberg-richter in the earth and in the
+  moon.
+\newblock {\em Journal of Earth Science}, 26(1):134--139, 2015.
+
+\bibitem{b_one}
+Allen C. P. Amand~C. Richter and J.~Nordquist.
+\newblock Relation between seismicity and geological structure in the southern
+  california region.
+\newblock {\em Bull. Seismol. Soc. Am}, 1965.
+
+\bibitem{b_two}
+Mori and R.E. Abercrombie.
+\newblock Depth dependence of earthquake frequency-magnitude distributions in
+  california: Implication for the rupture initiation.
+\newblock {\em Geophys Res}, 1997.
+
+\bibitem{b_three}
+R.P.~Young Urbancic T. I. C-I. Trifu J. M.~Long.
+\newblock Space-time correlation of b values with stress release.
+\newblock {\em PAGEOPH}, pages 449--462, 1992.
+
+\bibitem{b_val_distrib}
+Aki K.
+\newblock Maximum liklihood estimate of b in the formula log n = a - bm and its
+  confidence limits.
+\newblock {\em Bulletin of the Earthquake Research Institute}, 43:237--239,
+  1965.
+
+\bibitem{rtl}
+Qinghua Huang.
+\newblock Seismicity pattern changes prior to large earthquakes-an approach of
+  the rtl algorithm.
+\newblock {\em TAO}, 15(3):469--491, 2004.
+
+\bibitem{log_gamma_approx}
+Kendall~D.G Bartlett~M.S.
+\newblock The statistical analysis of variance-heterogeneity and logarithmic
+  transformation.
+\newblock {\em Jn.R. Statist.Soc. Suppl.,8, 128}, 1946.
+
+\bibitem{mean_field}
+David M. Blei Alp Kucukelbir Jon~D. McAuliffe.
+\newblock Variational inference: A review for statisticians.
+\newblock {\em arXiv}, 2016.
+
+\bibitem{mix_one}
+Merrilee HURN Ana JUSTEL Christian~P. ROBERT.
+\newblock Estimating mixtures of regressions.
+\newblock {\em Am Statist Assoc}, 2008.
+
+\bibitem{mix_two}
+Lauren A. Hannah David M. Blei Warren~B. Powell.
+\newblock Dirichlet process mixtures of generalized linear models.
+\newblock {\em Journal of Machine Learning Research 1}, 2011.
+
+\bibitem{mix_three}
+Prasad A NAIK~Peide SHI and Chih-Ling T.
+\newblock Extending the akaike information criterion to mixture regression
+  models.
+\newblock {\em Am Statist Assoc}, 2007.
+
+\end{thebibliography}
